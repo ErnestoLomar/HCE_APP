@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Test_HCE</string>
+    <!-- Nombre del servicio HCE -->
+    <string name="service_name">My HCE Service</string>
+    <!-- Descripción del servicio HCE -->
+    <string name="servicio_emulacion">Emulación de Tarjeta MIFARE</string>
+
+    <string name="creador">Ernesto Lomar</string>
+</resources>
