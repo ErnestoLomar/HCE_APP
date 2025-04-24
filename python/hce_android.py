@@ -14,6 +14,7 @@ HSU = False
 if SPI:
     print("Se configurara en SPI")
     PN532_SPI = Pn532Spi(Pn532Spi.SS0_GPIO8)#SS1_GPIO7
+    #PN532_SPI = Pn532Spi(Pn532Spi.SS1_GPIO7)
     nfc = Pn532(PN532_SPI)
 # When the number after #elif set as 1, it will be switch to HSU Mode
 elif HSU:
@@ -73,27 +74,26 @@ def loop():
 
         if (success):
 
-            print("responseLength: {:d}", len(response))
-            print(f"responseLength: {len(response)}")
             print(binascii.hexlify(response))
 
-            while (success):
+            if (success):
                 
-                apdu = bytearray(b"Saludos desde Raspberry!")
-                print("El comando apdu es: ", apdu)
+                apdu = bytearray(b"Hello from Raspberry!")
+                print("Sending: ", apdu)
                 success, back = nfc.inDataExchange(apdu)
 
                 if (success):
-                    print("2responseLength: {:d}", len(back))
-                    print(f"2responseLength: {len(back)}")
-                    print(binascii.hexlify(back))
+                    print("Received: ", back)
+                    print("#############################")
                 else:
                     print("Broken connection?")
-                    break
+                    print("#############################")
         else:
             print("Failed sending SELECT AID")
+            print("#############################")
     else:
         print("Didn't find anything!")
+        print("#############################")
 
     time.sleep(1)
 
