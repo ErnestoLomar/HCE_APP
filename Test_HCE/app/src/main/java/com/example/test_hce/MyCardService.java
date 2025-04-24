@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Arrays;
+
 public class MyCardService extends HostApduService {
 
     private static final String TAG = "MyCardService";
@@ -21,17 +23,25 @@ public class MyCardService extends HostApduService {
             (byte)0x00  // SW2: Command successfully executed (OK).
     };
 
+    private boolean appSelected = false;
+
     @Override
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {
 
-        Toast.makeText(this, "Hay comunicacion", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "APDU recibido: " + bytesToHex(commandApdu));
 
-        String respuesta = hexToString(bytesToHex(commandApdu));
+        // Verifica si es SELECT AID
+        if (isSelectApdu(commandApdu)) {
+            appSelected = true; // Activamos el modo de recepción
+            Log.d(TAG, "SELECT AID recibido, enviando OK...");
+            Toast.makeText(this, "SELECT AID recibido, enviando OK...", Toast.LENGTH_SHORT).show();
+            return SELECT_RESPONSE_OK;
+        }
 
-        boolean chida = isPrintable(respuesta);
-
-        if (chida){
-            //Toast.makeText(this, String.format("Recibido de raspberry: %s", respuesta), Toast.LENGTH_SHORT).show();
+        if (appSelected) {
+            String mensajeRecibido = hexToString(bytesToHex(commandApdu));
+            Log.d(TAG, "Mensaje recibido: " + mensajeRecibido);
+            //Toast.makeText(this, "Mensaje recibido: " + mensajeRecibido, Toast.LENGTH_SHORT).show();
 
             Intent intentEstado = new Intent("com.example.test_hce.MESSAGE_RECEIVED_ESTADO");
             intentEstado.putExtra("estado", "Comunicado");
@@ -42,18 +52,18 @@ public class MyCardService extends HostApduService {
             sendBroadcast(intentEnviado);
 
             Intent intentRecibido = new Intent("com.example.test_hce.MESSAGE_RECEIVED_RECIBIDO");
-            intentRecibido.putExtra("recibido", respuesta);
+            intentRecibido.putExtra("recibido", mensajeRecibido);
             sendBroadcast(intentRecibido);
+
+            String mensajeDeRegreso = "Hola desde App.";
+            //Toast.makeText(this, "Mensaje de regreso: " + mensajeDeRegreso, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Mensaje de regreso: " + mensajeDeRegreso);
+            return mensajeDeRegreso.getBytes();
         }
 
-        Log.d(TAG, "Received APDU: " + bytesToHex(commandApdu));
-
-        if (isSelectApdu(commandApdu)) {
-            //Toast.makeText(this, "Respondiendo OK", Toast.LENGTH_SHORT).show();
-            return SELECT_RESPONSE_OK;
-        }
-
-        return new byte[]{};
+        Toast.makeText(this, "No se ha recibido SELECT", Toast.LENGTH_SHORT).show();
+        // Si no se ha recibido SELECT, no hacemos nada
+        return new byte[] {(byte)0x6A, (byte)0x82}; // File not found
     }
 
     @Override
@@ -96,12 +106,6 @@ public class MyCardService extends HostApduService {
     }
 
     private boolean isPrintable(String str) {
-        for (char c : str.toCharArray()) {
-            if (!Character.isLetterOrDigit(c) && !Character.isWhitespace(c) &&
-                    !Character.isISOControl(c) && c != ' ') {
-                return false;
-            }
-        }
-        return true;
+        return str.matches("\\A\\p{Print}*\\z");
     }
 }

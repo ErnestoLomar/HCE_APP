@@ -22,30 +22,36 @@ public class MainActivity extends Activity {
     private BroadcastReceiver messageReceiverEstado = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String estado = intent.getStringExtra("estado");
-
-            TextView textView = findViewById(R.id.textViewEstado);
-            textView.setText(estado);
+            if (intent != null && intent.hasExtra("estado")) {
+                String estado = intent.getStringExtra("estado");
+                Log.d(TAG, "Estado recibido: " + estado);
+                TextView textView = findViewById(R.id.textViewEstado);
+                if (textView != null) textView.setText(estado);
+            }
         }
     };
 
     private BroadcastReceiver messageReceiverEnviado = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String enviado = intent.getStringExtra("enviado");
-
-            TextView textView = findViewById(R.id.textViewEnviado);
-            textView.setText(enviado);
+            if (intent != null && intent.hasExtra("enviado")) {
+                String enviado = intent.getStringExtra("enviado");
+                Log.d(TAG, "Comando enviado: " + enviado);
+                TextView textView = findViewById(R.id.textViewEnviado);
+                if (textView != null) textView.setText(enviado);
+            }
         }
     };
 
     private BroadcastReceiver messageReceiverRecibido = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String recibido = intent.getStringExtra("recibido");
-
-            TextView textView = findViewById(R.id.textViewRespuesta);
-            textView.setText(recibido);
+            if (intent != null && intent.hasExtra("recibido")) {
+                String recibido = intent.getStringExtra("recibido");
+                Log.d(TAG, "Respuesta recibida: " + recibido);
+                TextView textView = findViewById(R.id.textViewRespuesta);
+                if (textView != null) textView.setText(recibido);
+            }
         }
     };
 
